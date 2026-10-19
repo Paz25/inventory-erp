@@ -7,6 +7,41 @@
 <div class="d-flex justify-content-between align-items-center">
     <div class="card w-100">
         <div class="card-body">
+            @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show"
+                role="alert">
+                {{ session('success') }}
+
+                <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+            </div>
+            @endif
+
+            @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show"
+                role="alert">
+                {{ session('error') }}
+
+                <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+            </div>
+            @endif
+
+            @if ($errors->any())
+            <div class="alert alert-danger" role="alert">
+                <strong>Data belum berhasil disimpan.</strong>
+
+                <ul class="mb-0 mt-2">
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
             <div class="d-flex justify-content-between align-items-center gap-1">
                 <form action="{{ route('dashboard') }}" method="GET" class="d-flex justify-content-between gap-1 w-100">
                     <input type="text" name="search" class="form-control w-100" placeholder="..." value="{{ $search ?? ''}}">

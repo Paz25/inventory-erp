@@ -38,6 +38,30 @@ class ItemController extends Controller
             ->with('success', 'Barang berhasil ditambahkan.');
     }
 
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'kode' => 'required|string|max:50|unique:items,kode',
+    //         'nama' => 'required|string|max:255',
+    //         'kategori' => 'required|string|max:100',
+    //         'jumlah' => 'required|integer|min:0',
+    //     ], [
+    //         'kode.required' => 'Kode barang wajib diisi.',
+    //         'kode.unique' => 'Kode barang sudah digunakan.',
+    //         'kode.max' => 'Kode barang maksimal 50 karakter.',
+    //         'nama.required' => 'Nama barang wajib diisi.',
+    //         'kategori.required' => 'Kategori barang wajib diisi.',
+    //         'jumlah.required' => 'Jumlah stok wajib diisi.',
+    //         'jumlah.integer' => 'Jumlah stok harus berupa angka bulat.',
+    //         'jumlah.min' => 'Jumlah stok tidak boleh negatif.',
+    //     ]);
+
+    //     Item::create($validated);
+
+    //     return redirect()->route('dashboard')
+    //         ->with('success', 'Barang berhasil ditambahkan.');
+    // }
+
     public function update(Request $request, Item $item)
     {
         $validated = $request->validate([
