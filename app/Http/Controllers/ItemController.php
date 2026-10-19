@@ -28,9 +28,9 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kode' => ['required', 'string', 'max:50', 'unique:items,kode'],
+            'kode' => ['required', 'string', 'max:10', 'unique:items,kode'],
             'nama' => ['required', 'string', 'max:255'],
-            'kategori' => ['required', 'string', 'max:100'],
+            'kategori' => ['required', 'string', 'max:255'],
             'jumlah' => ['required', 'integer', 'min:0'],
         ]);
         Item::create($validated);
@@ -44,11 +44,11 @@ class ItemController extends Controller
             'kode' => [
                 'required',
                 'string',
-                'max:50',
+                'max:10',
                 Rule::unique('items', 'kode')->ignore($item->id),
             ],
             'nama' => ['required', 'string', 'max:255'],
-            'kategori' => ['required', 'string', 'max:100'],
+            'kategori' => ['required', 'string', 'max:255'],
             'jumlah' => ['required', 'integer', 'min:0'],
         ]);
         $item->update($validated);
