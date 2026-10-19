@@ -8,10 +8,21 @@ use App\Models\Item;
 
 class ItemController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = Item::latest()->paginate(10);
-        return view('dashboard.index', compact('items'));
+        $search = $request->input('search');
+        $items = Item::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('kode', 'like', "%{$search}%")
+                        ->orWhere('nama', 'like', "%{$search}%")
+                        ->orWhere('kategori', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+        return view('dashboard.index', compact('items', 'search'));
     }
 
     public function store(Request $request)
