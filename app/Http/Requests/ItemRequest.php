@@ -26,12 +26,18 @@ class ItemRequest extends FormRequest
      */
     public function rules(): array
     {
+        $token = $this->route('item');
+
         return [
             'kode' => [
                 'required',
                 'string',
                 'max:10',
-                Rule::unique('items', 'code')->ignore(Crypt::decrypt($this->route('item')))
+                Rule::unique('items', 'code')->ignore(
+                    $token ? rescue(function () use ($token) {
+                        return Crypt::decrypt($token);
+                    }, null, false) : null
+                ),
             ],
             'nama' => ['required', 'string', 'max:255'],
             'kategori' => ['required', 'string', 'max:20'],

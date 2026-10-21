@@ -5,5 +5,5 @@
     <a href="{{ route('dashboard') }}"
         class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
     <a href="{{ route('items') }}" class="{{ request()->routeIs('items') ? 'active' : '' }}">Manajemen Barang</a>
-    <a href="#">Manajemen Supplier</a>
+    <a href="{{ route('suppliers') }}" class="{{ request()->routeIs('suppliers') ? 'active' : '' }}">Manajemen Supplier</a>
 </aside>

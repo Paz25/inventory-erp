@@ -6,41 +6,43 @@
     <div class="my-3 border-bottom border-secondary-subtle w-100"></div>
 </div>
 <div class="d-flex justify-content-between align-items-center">
-    <div class="card w-100">
+    <div class="card shadow-sm w-100">
         <div class="card-body">
-            @if (session()->has('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <strong>{{ session('success') }}</strong>
-                <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Close"></button>
-            </div>
-            @endif
+            <div class="alert-body">
+                @if (session()->has('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>{{ session('success') }}</strong>
+                    <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+                </div>
+                @endif
 
-            @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Close"></button>
-            </div>
-            @endif
+                @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+                </div>
+                @endif
 
-            @if ($errors->any())
-            <div class="alert alert-danger" role="alert">
-                <strong>Gagal!</strong>
-                <ul class="mb-0 mt-1">
-                    @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+                @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Gagal!</strong>
+                    <ul class="mb-0 mt-1">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
             </div>
-            @endif
 
-            <div class="d-flex justify-content-between align-items-center gap-1">
-                <form action="{{ route('items') }}" method="GET" class="d-flex justify-content-between gap-1 w-100">
+            <div class="d-flex justify-content-between align-items-center gap-2">
+                <form action="{{ route('items') }}" method="GET" class="d-flex justify-content-between gap-2 w-100">
                     <input type="text" name="search" class="form-control w-100" placeholder="..." value="{{ $search ?? ''}}">
                     <button type="submit" class="btn btn-info">
                         Search
@@ -56,6 +58,7 @@
                     Tambah Barang
                 </button>
             </div>
+
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -86,24 +89,23 @@
                                 @endif
                             </td>
                             <td>
-                                <button
-                                    type="button"
-                                    class="btn btn-warning btn-sm"
-                                    data-url="{{ route('items.show', Crypt::encrypt($item->id)) }}"
-                                    onclick="openEditModal(this)">
-                                    Edit
-                                </button>
-                                <form
-                                    action="{{ route('items.destroy', Crypt::encrypt($item->id)) }}"
-                                    method="POST"
-                                    class="d-inline"
-                                    onsubmit="return confirm('Yakin ingin menghapus barang ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">
+                                <div class="w-100 d-flex flex-wrap gap-1">
+                                    <button
+                                        type="button"
+                                        class="btn btn-warning btn-sm flex-grow-1"
+                                        data-url="{{ route('items.show', Crypt::encrypt($item->id)) }}"
+                                        onclick="openEditModal(this)">
+                                        Edit
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm flex-grow-1"
+                                        data-url="{{ route('items.destroy', Crypt::encrypt($item->id)) }}"
+                                        data-name="{{ $item->product_name }}"
+                                        onclick="openDeleteModal(this)">
                                         Hapus
                                     </button>
-                                </form>
+                                </div>
                             </td>
                         </tr>
                         @empty
@@ -124,6 +126,7 @@
 </div>
 
 @include('items.partials.create-edit-modal')
+@include('items.partials.delete-modal')
 
 <script>
     function openCreateModal() {
@@ -173,6 +176,24 @@
             // alert('Gagal memuat data barang.');
         }
     }
+
+    function openDeleteModal(button) {
+        const submitBtn = document.getElementById('submitDeleteButton');
+
+        document.getElementById('deleteForm').action = button.dataset.url;
+        document.getElementById('deleteItemName').textContent = button.dataset.name;
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Hapus';
+
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteModal')).show();
+    }
+
+    document.getElementById('deleteForm').addEventListener('submit', function() {
+        const submitBtn = document.getElementById('submitDeleteButton');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Menghapus...';
+    });
 </script>
 
 @endsection

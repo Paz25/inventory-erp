@@ -55,7 +55,6 @@
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                         Batal
                     </button>
-
                     <button type="submit" class="btn btn-primary" id="submitButton">
                         Simpan Barang
                     </button>

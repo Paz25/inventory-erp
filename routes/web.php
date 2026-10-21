@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\SupplierController;
 
 Route::get('/', function () {
     return redirect()->route('items');
@@ -17,3 +17,5 @@ Route::post('/items', [ItemController::class, 'store'])->name('items.store');
 Route::get('/items/{item}', [ItemController::class, 'show'])->name('items.show');
 Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
 Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
+
+Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers');

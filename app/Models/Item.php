@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Item extends Model
 {
     use HasUuids;
-    protected $table = 'items';
 
+    protected $table = 'items';
     protected $fillable = [
         'code',
         'product_name',
