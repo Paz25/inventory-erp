@@ -24,7 +24,7 @@
                 <button type="button"
                     class="btn-close"
                     data-bs-dismiss="alert"
-                    aria-label="Close" />
+                    aria-label="Close"></button>
             </div>
             @endif
 
@@ -40,7 +40,7 @@
             @endif
 
             <div class="d-flex justify-content-between align-items-center gap-1">
-                <form action="{{ route('dashboard') }}" method="GET" class="d-flex justify-content-between gap-1 w-100">
+                <form action="{{ route('items') }}" method="GET" class="d-flex justify-content-between gap-1 w-100">
                     <input type="text" name="search" class="form-control w-100" placeholder="..." value="{{ $search ?? ''}}">
                     <button type="submit" class="btn btn-info">
                         Search
@@ -74,12 +74,12 @@
                         @forelse ($items as $item)
                         <tr>
                             <td>{{ $items->firstItem() + $loop->index }}</td>
-                            <td>{{ $item->kode }}</td>
-                            <td>{{ $item->nama }}</td>
-                            <td>{{ $item->kategori }}</td>
-                            <td>{{ $item->jumlah }}</td>
+                            <td>{{ $item->code }}</td>
+                            <td>{{ $item->product_name }}</td>
+                            <td>{{ $item->product_category }}</td>
+                            <td>{{ $item->quantity }}</td>
                             <td>
-                                @if ($item->jumlah > 0)
+                                @if ($item->quantity > 0)
                                 <span class="badge bg-success">Tersedia</span>
                                 @else
                                 <span class="badge bg-danger">Habis</span>
@@ -89,19 +89,12 @@
                                 <button
                                     type="button"
                                     class="btn btn-warning btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#itemModal"
-                                    data-id="{{ $item->id }}"
-                                    data-kode="{{ $item->kode }}"
-                                    data-nama="{{ $item->nama }}"
-                                    data-kategori="{{ $item->kategori }}"
-                                    data-jumlah="{{ $item->jumlah }}"
+                                    data-url="{{ route('items.show', Crypt::encrypt($item->id)) }}"
                                     onclick="openEditModal(this)">
                                     Edit
                                 </button>
-
                                 <form
-                                    action="{{ route('items.destroy', $item->id) }}"
+                                    action="{{ route('items.destroy', Crypt::encrypt($item->id)) }}"
                                     method="POST"
                                     class="d-inline"
                                     onsubmit="return confirm('Yakin ingin menghapus barang ini?')">
@@ -130,101 +123,55 @@
     </div>
 </div>
 
-<div class="modal fade" id="itemModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <form action="{{ route('items.store') }}" method="POST" id="itemForm">
-                @csrf
-                <div id="methodField"></div>
-
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold" id="itemModalLabel">
-                        Tambah Barang
-                    </h5>
-                    <button type="button" class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="kode" class="form-label">
-                                Kode Barang
-                            </label>
-                            <input type="text" id="kode" name="kode"
-                                class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="nama" class="form-label">
-                                Nama Barang
-                            </label>
-                            <input type="text" id="nama" name="nama"
-                                class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="kategori" class="form-label">
-                                Kategori
-                            </label>
-                            <input type="text" id="kategori" name="kategori"
-                                class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label for="jumlah" class="form-label">
-                                Jumlah
-                            </label>
-                            <input type="number" id="jumlah" name="jumlah"
-                                min="0" value="0"
-                                class="form-control" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                        Batal
-                    </button>
-
-                    <button type="submit" class="btn btn-primary" id="submitButton">
-                        Simpan Barang
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+@include('items.partials.create-edit-modal')
 
 <script>
     function openCreateModal() {
-        const form = document.getElementById('itemForm');
+        const itemForm = document.getElementById('itemForm');
 
-        form.reset();
-        form.action = "{{ route('items.store') }}";
-
+        itemForm.reset();
+        itemForm.action = "{{ route('items.store') }}";
         document.getElementById('methodField').innerHTML = '';
+
         document.getElementById('itemModalLabel').textContent = 'Tambah Barang';
         document.getElementById('submitButton').textContent = 'Simpan Barang';
         document.getElementById('jumlah').value = 0;
     }
 
-    function openEditModal(button) {
-        const form = document.getElementById('itemForm');
-        const id = button.dataset.id;
+    async function openEditModal(button) {
+        const itemForm = document.getElementById('itemForm');
+        const itemModal = document.getElementById('itemModal');
 
-        form.action = "{{ url('/items') }}/" + id;
+        try {
+            const res = await fetch(button.dataset.url, {
+                headers: {
+                    'Accept': 'application/json'
+                },
+            });
+            const data = await res.json();
 
-        document.getElementById('methodField').innerHTML = '<input type="hidden" name="_method" value="PUT">';
+            if (!res.ok) {
+                bootstrap.Modal.getInstance(itemModal)?.hide();
+                alert(data.message ?? 'Gagal memuat data barang.');
+                return;
+            }
 
-        document.getElementById('itemModalLabel').textContent = 'Edit Barang';
-        document.getElementById('submitButton').textContent = 'Simpan Perubahan';
+            itemForm.action = data.update_url;
+            document.getElementById('methodField').innerHTML = '<input type="hidden" name="_method" value="PUT">';
+            document.getElementById('itemModalLabel').textContent = 'Edit Barang';
+            document.getElementById('submitButton').textContent = 'Simpan Perubahan';
 
-        document.getElementById('kode').value = button.dataset.kode;
-        document.getElementById('nama').value = button.dataset.nama;
-        document.getElementById('kategori').value = button.dataset.kategori;
-        document.getElementById('jumlah').value = button.dataset.jumlah;
+            document.getElementById('kode').value = data.kode;
+            document.getElementById('nama').value = data.nama;
+            document.getElementById('kategori').value = data.kategori;
+            document.getElementById('jumlah').value = data.jumlah;
+
+            bootstrap.Modal.getOrCreateInstance(itemModal).show();
+        } catch (e) {
+            console.error(e);
+            bootstrap.Modal.getInstance(itemModal)?.hide();
+            // alert('Gagal memuat data barang.');
+        }
     }
 </script>
 

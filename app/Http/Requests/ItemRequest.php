@@ -5,6 +5,8 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Override;
 
 class ItemRequest extends FormRequest
@@ -29,11 +31,23 @@ class ItemRequest extends FormRequest
                 'required',
                 'string',
                 'max:10',
-                Rule::unique('items', 'kode')->ignore($this->route('item'))
+                Rule::unique('items', 'code')->ignore(Crypt::decrypt($this->route('item')))
             ],
             'nama' => ['required', 'string', 'max:255'],
             'kategori' => ['required', 'string', 'max:20'],
             'jumlah' => ['required', 'integer', 'min:0', 'max:1000000'],
+        ];
+    }
+
+    public function itemData(): array
+    {
+        $data = $this->validated();
+
+        return [
+            'code' => $data['kode'],
+            'product_name' => $data['nama'],
+            'product_category' => $data['kategori'],
+            'quantity' => $data['jumlah']
         ];
     }
 

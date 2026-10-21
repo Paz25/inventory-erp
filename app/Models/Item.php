@@ -11,9 +11,9 @@ class Item extends Model
     protected $table = 'items';
 
     protected $fillable = [
-        'kode',
-        'nama',
-        'kategori',
-        'jumlah',
+        'code',
+        'product_name',
+        'product_category',
+        'quantity',
     ];
 }
