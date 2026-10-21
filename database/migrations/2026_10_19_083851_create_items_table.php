@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('items', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id');
             $table->string('kode', 10)->unique();
-            $table->string('nama');
-            $table->string('kategori');
+            $table->string('nama', 255);
+            $table->string('kategori', 20);
             $table->integer('jumlah')->default(0);
             $table->timestamps();
         });

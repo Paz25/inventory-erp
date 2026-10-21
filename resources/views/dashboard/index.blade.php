@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="">
-    <h2 class="fw-bold font-black">Dashboard</h2>
+    <h3 class="fw-bold font-black">Dashboard</h3>
 </div>
 <div class="d-flex justify-content-between align-items-center">
     <div class="card w-100">
