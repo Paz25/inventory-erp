@@ -35,15 +35,20 @@ class ItemController extends Controller
     {
         try {
             Item::create($request->itemData());
+        } catch (QueryException $e) {
+            report($e);
+
+            return back()->withInput()->with('error', 'Barang gagal disimpan.');
         } catch (UniqueConstraintViolationException $e) {
             report($e);
+
             return back()->withInput()->with('error', 'Kode barang sudah digunakan.');
         }
 
         return redirect()->route('items')->with('success', 'Barang berhasil ditambahkan.');
     }
 
-    public function show(string $encryptedId)
+    public function show(string $encryptedId): JsonResponse
     {
         try {
             $item = Item::findOrFail(Crypt::decrypt($encryptedId));

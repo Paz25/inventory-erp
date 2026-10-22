@@ -62,12 +62,12 @@ class ItemRequest extends FormRequest
     {
         return [
             'kode.required' => 'Kode barang wajib diisi.',
-            'kode.unique' => 'Kode barang sudah digunakan',
-            'kode.max' => 'Kode barang max. 10 karakter',
-            'nama.required' => 'Nama barang wajib diisi',
-            'kategori.required' => 'Kategori barang wajib diisi',
-            'jumlah.required' => 'Jumlah stok harus diisi',
-            'jumlah.min' => 'Jumlah stok minimal 0',
+            'kode.unique' => 'Kode barang sudah digunakan.',
+            'kode.max' => 'Kode barang max.10 karakter.',
+            'nama.required' => 'Nama barang wajib diisi.',
+            'kategori.required' => 'Kategori barang wajib diisi.',
+            'jumlah.required' => 'Jumlah stok harus diisi.',
+            'jumlah.min' => 'Jumlah stok minimal 0.',
         ];
     }
 }
