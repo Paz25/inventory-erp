@@ -6,4 +6,5 @@
         class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
     <a href="{{ route('items') }}" class="{{ request()->routeIs('items') ? 'active' : '' }}">Manajemen Barang</a>
     <a href="{{ route('suppliers') }}" class="{{ request()->routeIs('suppliers') ? 'active' : '' }}">Manajemen Supplier</a>
+    <a href="{{ route('stock-movements') }}" class="{{ request()->routeIs('stock-movements') ? 'active' : '' }}">Transaksi Stok</a>
 </aside>

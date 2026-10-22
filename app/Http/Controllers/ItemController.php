@@ -11,6 +11,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\ItemRequest;
 use App\Models\Item;
+use Illuminate\Support\Facades\DB;
 
 class ItemController extends Controller
 {
@@ -35,17 +36,24 @@ class ItemController extends Controller
     public function store(ItemRequest $request)
     {
         try {
-            Item::create($request->itemData());
+            DB::transaction(function () use ($request) {
+                $item = Item::create($request->itemData());
+
+                $item->movements()->create([
+                    'type' => 'initial',
+                    'quantity' => $item->quantity,
+                ]);
+            });
 
             return redirect()->route('items')->with('success', 'Barang berhasil ditambahkan.');
-        } catch (QueryException $e) {
-            report($e);
-
-            return back()->withInput()->with('error', 'Barang gagal disimpan.');
         } catch (UniqueConstraintViolationException $e) {
             report($e);
 
             return back()->withInput()->with('error', 'Kode barang sudah digunakan.');
+        } catch (QueryException $e) {
+            report($e);
+
+            return back()->withInput()->with('error', 'Barang gagal disimpan.');
         }
     }
 
@@ -71,8 +79,20 @@ class ItemController extends Controller
     public function update(ItemRequest $request, string $encryptedId)
     {
         try {
-            $item = Item::findOrFail(Crypt::decrypt($encryptedId));
-            $item->update($request->itemData());
+            DB::transaction(function () use ($request, $encryptedId) {
+                $item = Item::whereKey(Crypt::decrypt($encryptedId))->lockForUpdate()->firstOrFail();
+                $before = $item->quantity;
+
+                $item->update($request->itemData());
+
+                if ($item->wasChanged('quantity')) {
+                    $diff = $item->quantity - $before;
+                    $item->movements()->create([
+                        'type' => $diff > 0 ? 'masuk' : 'keluar',
+                        'quantity' => abs($diff),
+                    ]);
+                }
+            });
 
             return redirect()->route('items')->with('success', 'Barang berhasil diperbarui.');
         } catch (DecryptException | ModelNotFoundException $e) {
@@ -81,6 +101,10 @@ class ItemController extends Controller
             report($e);
 
             return back()->withInput()->with('error', 'Kode barang sudah digunakan.');
+        } catch (QueryException $e) {
+            report($e);
+
+            return back()->with('error', 'Barang gagal diperbarui.');
         }
     }
 
