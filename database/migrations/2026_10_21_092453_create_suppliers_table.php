@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('supplier_name');
             $table->string('supplier_address');
             $table->string('pic_name');
-            $table->string('pic_contact_number');
-            $table->string('pic_contact_email');
+            $table->string('pic_contact_number', 13);
+            $table->string('pic_contact_email', 50);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

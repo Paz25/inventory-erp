@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Supplier;
 use Illuminate\Database\QueryException;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Crypt;
 
@@ -48,13 +49,13 @@ class SupplierController extends Controller
     {
         try {
             Supplier::create($request->supplierData());
+
+            return redirect()->route('suppliers')->with('success', 'Supplier berhasil ditambahkan.');
         } catch (QueryException $e) {
             report($e);
 
             return back()->withInput()->with('error', 'Supplier gagal disimpan.');
         }
-
-        return redirect()->route('suppliers')->with('success', 'Supplier berhasil ditambahkan.');
     }
 
     /**
@@ -74,7 +75,7 @@ class SupplierController extends Controller
                 'email_pic' => $supplier->pic_contact_email,
                 'update_url' => route('suppliers.update', $encryptedId),
             ]);
-        } catch (DecryptException $e) {
+        } catch (DecryptException | ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Supplier tidak ditemukan.',
             ], 404);
@@ -99,12 +100,12 @@ class SupplierController extends Controller
             $supplier->update($request->supplierData());
 
             return redirect()->route('suppliers')->with('success', 'Supplier berhasil diperbarui.');
+        } catch (DecryptException | ModelNotFoundException $e) {
+            return redirect()->route('suppliers')->with('error', 'Supplier tidak ditemukan.');
         } catch (QueryException $e) {
             report($e);
 
             return back()->withInput()->with('error', 'Supplier gagal diperbarui.');
-        } catch (DecryptException $e) {
-            return redirect()->route('suppliers')->with('error', 'Supplier tidak ditemukan.');
         }
     }
 
@@ -118,11 +119,11 @@ class SupplierController extends Controller
             $supplier->delete();
 
             return redirect()->route('suppliers')->with('success', 'Supplier berhasil dihapus.');
+        } catch (DecryptException | ModelNotFoundException $e) {
+            return redirect()->route('suppliers')->with('error', 'Supplier tidak ditemukan.');
         } catch (QueryException $e) {
             report($e);
 
-            return redirect()->route('suppliers')->with('error', 'Supplier tidak ditemukan.');
-        } catch (DecryptException $e) {
             return redirect()->route('suppliers')->with('error', 'Supplier tidak ditemukan.');
         }
     }

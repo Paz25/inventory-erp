@@ -8,6 +8,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests\ItemRequest;
 use App\Models\Item;
 
@@ -35,6 +36,8 @@ class ItemController extends Controller
     {
         try {
             Item::create($request->itemData());
+
+            return redirect()->route('items')->with('success', 'Barang berhasil ditambahkan.');
         } catch (QueryException $e) {
             report($e);
 
@@ -44,8 +47,6 @@ class ItemController extends Controller
 
             return back()->withInput()->with('error', 'Kode barang sudah digunakan.');
         }
-
-        return redirect()->route('items')->with('success', 'Barang berhasil ditambahkan.');
     }
 
     public function show(string $encryptedId): JsonResponse
@@ -60,7 +61,7 @@ class ItemController extends Controller
                 'jumlah' => $item->quantity,
                 'update_url' => route('items.update', $encryptedId),
             ]);
-        } catch (DecryptException $e) {
+        } catch (DecryptException | ModelNotFoundException $e) {
             return response()->json([
                 'message' => 'Barang tidak ditemukan.',
             ], 404);
@@ -74,7 +75,7 @@ class ItemController extends Controller
             $item->update($request->itemData());
 
             return redirect()->route('items')->with('success', 'Barang berhasil diperbarui.');
-        } catch (DecryptException $e) {
+        } catch (DecryptException | ModelNotFoundException $e) {
             return back()->with('error', 'Barang tidak ditemukan & gagal diperbarui.');
         } catch (UniqueConstraintViolationException $e) {
             report($e);
@@ -90,7 +91,7 @@ class ItemController extends Controller
 
             $item->delete();
             return redirect()->route('items')->with('success', 'Barang berhasil dihapus.');
-        } catch (DecryptException $e) {
+        } catch (DecryptException | ModelNotFoundException $e) {
             return back()->with('error', 'Barang tidak ditemukan & gagal dihapus.');
         } catch (QueryException $e) {
             report($e);

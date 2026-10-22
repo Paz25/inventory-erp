@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('product_name', 255);
             $table->string('product_category', 20);
             $table->integer('quantity')->default(0);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
