@@ -6,23 +6,31 @@ use App\Http\Requests\StockMovementRequest;
 use App\Models\Item;
 use App\Models\StockMovement;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Exceptions\NotEnoughStockException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class StockMovementController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $movements = StockMovement::with('item')->latest()->paginate(10);
+        $search = $request->input('search');
+
+        $movements = StockMovement::query()->when($search, function ($query, $search) {
+            $query->whereHas('item', function ($itemQuery) use ($search) {
+                $itemQuery->withTrashed()->where(function ($q) use ($search) {
+                    $q->where('code', 'like', "%{$search}%")->orWhere('product_name', 'like', "%{$search}%");
+                });
+            });
+        })->latest()->paginate(10)->withQueryString();
 
         $items = Item::query()->orderBy('product_name')->get(['id', 'code', 'product_name', 'quantity']);
 
-        return view('stock-movements.index', compact('movements', 'items'));
+        return view('stock-movements.index', compact('movements', 'items', 'search'));
     }
 
     /**
@@ -45,7 +53,7 @@ class StockMovementController extends Controller
                 $item = Item::whereKey($data['item_id'])->lockForUpdate()->firstOrFail();
 
                 if ($data['type'] === 'keluar' && $item->quantity < $data['quantity']) {
-                    throw new NotEnoughStockException($item->quantity);
+                    throw new RuntimeException('Jumlah stok tidak mencukupi.');
                 }
                 $item->movements()->create($data);
 

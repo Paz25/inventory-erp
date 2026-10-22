@@ -43,7 +43,7 @@
 
             <div class="d-flex justify-content-between align-items-center gap-2">
                 <form action="{{  route('suppliers') }}" class="d-flex justify-content-between gap-2 w-100">
-                    <input type="text" name="search" class="form-control w-100" placeholder="..." value="{{ $search ?? ''}}">
+                    <input type="text" name="search" class="form-control w-100" placeholder="Cari nama perusahaan atau nama PIC..." value="{{ $search ?? ''}}">
                     <button type="submit" class="btn btn-info">
                         Search
                     </button>
