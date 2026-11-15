@@ -63,8 +63,10 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
+            'driver' => 'igr',
+            'connection' => 'users_igr',
+            'table' => 'users'
+            // 'model' => env('AUTH_MODEL', User::class),
         ],
 
         // 'users' => [
