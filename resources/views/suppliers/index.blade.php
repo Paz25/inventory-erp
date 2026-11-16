@@ -5,7 +5,17 @@
     <h3 class="fw-bold font-black mb-1">Manajemen Supplier</h3>
     <div class="my-3 border-bottom border-secondary-subtle w-100"></div>
 </div>
-<div class="d-flex justify-content-between align-suppliers-center">
+<div class="d-flex flex-column justify-content-between align-items-end gap-2">
+    <div class="d-flex justify-content-end align-items-center gap-2">
+        <button
+            type="button"
+            class="btn btn-success text-nowrap"
+            data-bs-toggle="modal"
+            data-bs-target="#supplierModal"
+            onclick="openCreateSupplierModal()">
+            Tambah Supplier
+        </button>
+    </div>
     <div class="card shadow-sm w-100">
         <div class="card-body">
             <div class="alert-body">
@@ -41,79 +51,18 @@
                 @endif
             </div>
 
-            <div class="d-flex justify-content-between align-items-center gap-2">
-                <form action="{{  route('suppliers') }}" class="d-flex justify-content-between gap-2 w-100">
-                    <input type="text" name="search" class="form-control w-100" placeholder="Cari nama perusahaan atau nama PIC..." value="{{ $search ?? ''}}">
-                    <button type="submit" class="btn btn-info">
-                        Search
-                    </button>
-                </form>
-                <button
-                    type="button"
-                    class="btn btn-success text-nowrap"
-                    data-bs-toggle="modal"
-                    data-bs-target="#supplierModal"
-                    style="min-width: 15%"
-                    onclick="openCreateSupplierModal()">
-                    Tambah Supplier
-                </button>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>No.</th>
-                            <th>Nama Perusahaan</th>
-                            <th>Alamat</th>
-                            <th>PIC</th>
-                            <th>Contact PIC</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @forelse ($suppliers as $supplier)
-                        <tr>
-                            <td>{{ $suppliers->firstItem() + $loop->index }}</td>
-                            <td>{{ $supplier->supplier_name }}</td>
-                            <td>{{ $supplier->supplier_address }}</td>
-                            <td>{{ $supplier->pic_name }}</td>
-                            <td>{{ $supplier->pic_contact_number }}</td>
-                            <td>
-                                <div class="w-100 d-flex flex-wrap gap-1">
-                                    <button
-                                        type="button"
-                                        class="btn btn-warning btn-sm flex-grow-1"
-                                        data-url="{{ route('suppliers.show', Crypt::encrypt($supplier->id)) }}"
-                                        onclick="openEditSupplierModal(this)">
-                                        Edit
-                                    </button>
-                                    <button
-                                        type="button"
-                                        class="btn btn-danger btn-sm flex-grow-1"
-                                        data-url="{{ route('suppliers.destroy', Crypt::encrypt($supplier->id)) }}"
-                                        data-name="{{ $supplier->supplier_name }}"
-                                        onclick="openDeleteSupplierModal(this)">
-                                        Hapus
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        @empty
-                        <tr>
-                            <td colspan="6" class="text-center">
-                                Belum ada data supplier.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-                <div class="mt-3">
-                    {{ $suppliers->links() }}
-                </div>
-            </div>
+            <table id="suppliersTable" class="table w-100">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Nama Perusahaan</th>
+                        <th>Alamat</th>
+                        <th>PIC</th>
+                        <th>Contact PIC</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
     </div>
 </div>
@@ -121,7 +70,74 @@
 @include('suppliers.partials.create-edit-modal')
 @include('suppliers.partials.delete-modal')
 
+@push('scripts')
 <script>
+    function showAlert(type, message) {
+        const wrapper = document.createElement('div');
+        wrapper.className = `alert alert-${type} alert-dismissible fade show`;
+        wrapper.setAttribute('role', 'alert');
+
+        const text = document.createElement('span');
+        text.textContent = message;
+
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'btn-close';
+        close.setAttribute('data-bs-dismiss', 'alert');
+        close.setAttribute('aria-label', 'Close');
+
+        wrapper.append(text, close);
+        document.querySelector('.alert-body').replaceChildren(wrapper);
+    }
+
+    DataTable.ext.errMode = 'none';
+
+    const suppliersTable = new DataTable('#suppliersTable', {
+        processing: true,
+        serverSide: true,
+        ajax: "{{ route('suppliers.data') }}",
+        order: [],
+        searchDelay: 400,
+        columns: [{
+                data: 'no',
+                orderable: false,
+                searchable: false
+            },
+            {
+                data: 'supplier_name'
+            },
+            {
+                data: 'supplier_address'
+            },
+            {
+                data: 'pic_name'
+            },
+            {
+                data: 'pic_contact_number'
+            },
+            {
+                data: 'action',
+                orderable: false,
+                searchable: false
+            },
+        ],
+        language: {
+            search: 'Cari:',
+            lengthMenu: 'Tampilkan _MENU_ data',
+            info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+            infoEmpty: 'Tidak ada data',
+            infoFiltered: '(difilter dari _MAX_ total data)',
+            zeroRecords: 'Tidak ada supplier yang cocok.',
+            emptyTable: 'Belum ada data supplier.',
+            processing: 'Memuat...',
+        },
+    });
+
+    suppliersTable.on('error', (e, settings, techNote, message) => {
+        console.error(message);
+        showAlert('danger', 'Gagal memuat data supplier.');
+    });
+
     function openCreateSupplierModal() {
         const supplierForm = document.getElementById('supplierForm');
 
@@ -181,5 +197,6 @@
         bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteSupplierModal')).show();
     }
 </script>
+@endpush
 
 @endsection

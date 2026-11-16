@@ -15,26 +15,6 @@ use Illuminate\Support\Str;
 
 class SupplierController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    // public function index(Request $request)
-    // {
-    //     $search = $request->input('search');
-
-    //     $suppliers = Supplier::query()
-    //         ->when($search, function ($query, $search) {
-    //             $query->where(function ($query) use ($search) {
-    //                 $query->where('supplier_name', 'like', "%{$search}%")
-    //                     ->orWhere('pic_name', 'like', "%{$search}%");
-    //             });
-    //         })
-    //         ->latest()
-    //         ->paginate(10)
-    //         ->withQueryString();
-
-    //     return view('suppliers.index', compact('suppliers', 'search'));
-    // }
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -47,6 +27,60 @@ class SupplierController extends Controller
         })->latest()->paginate(10)->withQueryString();
 
         return view('suppliers.index', compact('suppliers', 'search'));
+    }
+
+    public function data(Request $request): JsonResponse
+    {
+        $sortable = [
+            1 => 'supplier_name',
+            2 => 'supplier_address',
+            3 => 'pic_name',
+            4 => 'pic_contact_number',
+        ];
+
+        $start = max(0, $request->integer('start'));
+        $length = min(100, max(1, $request->integer('length', 10)));
+        $search = trim((string) $request->input('search.value', ''));
+
+        $base = DB::table('suppliers')
+            ->select(['id', 'supplier_name', 'supplier_address', 'pic_name', 'pic_contact_number', 'created_at'])
+            ->whereNull('deleted_at');
+
+        $recordsTotal = (clone $base)->count();
+
+        $query = (clone $base)->when($search !== '', function ($query) use ($search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('supplier_name', 'like', "%{$search}%")
+                    ->orWhere('pic_name', 'like', "%{$search}%");
+            });
+        });
+
+        $recordsFiltered = (clone $query)->count();
+
+        $orderColumn = $sortable[$request->integer('order.0.column')] ?? null;
+        $orderDir = $request->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
+
+        $orderColumn
+            ? $query->orderBy($orderColumn, $orderDir)
+            : $query->latest();
+
+        $suppliers = $query->skip($start)->take($length)->get();
+
+        $data = $suppliers->values()->map(fn(object $supplier, int $i) => [
+            'no' => $start + $i + 1,
+            'supplier_name'      => e($supplier->supplier_name),
+            'supplier_address' => e($supplier->supplier_address),
+            'pic_name' => e($supplier->pic_name),
+            'pic_contact_number' => e($supplier->pic_contact_number),
+            'action' => view('suppliers.partials.actions', compact('supplier'))->render(),
+        ]);
+
+        return response()->json([
+            'draw' => $request->integer('draw'),
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
+            'data' => $data,
+        ]);
     }
 
     /**

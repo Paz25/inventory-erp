@@ -29,6 +29,7 @@ Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.upda
 Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
 
 Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers');
+Route::get('/suppliers/data', [SupplierController::class, 'data'])->name('suppliers.data');
 Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
 Route::get('/suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
 Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');

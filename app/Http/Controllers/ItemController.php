@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\ValidationException;
 use App\Http\Requests\ItemRequest;
 use App\Models\Item;
 use Illuminate\Support\Facades\DB;
@@ -17,9 +18,9 @@ class ItemController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $search = trim((string) $request->input('search'));
         $items = Item::query()
-            ->when($search, function ($query, $search) {
+            ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($query) use ($search) {
                     $query->where('code', 'like', "%{$search}%")
                         ->orWhere('product_name', 'like', "%{$search}%")
@@ -30,7 +31,9 @@ class ItemController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('items.index', compact('items', 'search'));
+        $view = $request->ajax() ? 'items.partials.table' : 'items.index';
+
+        return response()->view($view, compact('items', 'search'))->header('Vary', 'X-requested-with');
     }
 
     public function store(ItemRequest $request)
@@ -45,15 +48,16 @@ class ItemController extends Controller
                 ]);
             });
 
-            return redirect()->route('items')->with('success', 'Barang berhasil ditambahkan.');
+            // return redirect()->route('items')->with('success', 'Barang berhasil ditambahkan.');
+            return $this->respond($request, 'Barang berhasil ditambahkan.', 201);
         } catch (UniqueConstraintViolationException $e) {
             report($e);
-
-            return back()->withInput()->with('error', 'Kode barang sudah digunakan.');
+            throw ValidationException::withMessages(['kode' => 'Kode barang sudah digunakan.']);
         } catch (QueryException $e) {
             report($e);
 
-            return back()->withInput()->with('error', 'Barang gagal disimpan.');
+            // return back()->withInput()->with('error', 'Barang gagal disimpan.');
+            return $this->respond($request, 'Barang gagal disimpan.', 500);
         }
     }
 
@@ -94,33 +98,46 @@ class ItemController extends Controller
                 }
             });
 
-            return redirect()->route('items')->with('success', 'Barang berhasil diperbarui.');
+            // return redirect()->route('items')->with('success', 'Barang berhasil diperbarui.');
+            return $this->respond($request, 'Barang berhasil diperbarui', 200);
         } catch (DecryptException | ModelNotFoundException $e) {
             return back()->with('error', 'Barang tidak ditemukan & gagal diperbarui.');
         } catch (UniqueConstraintViolationException $e) {
             report($e);
-
-            return back()->withInput()->with('error', 'Kode barang sudah digunakan.');
+            throw ValidationException::withMessages(['kode' => 'Kode barang sudah digunakan.']);
         } catch (QueryException $e) {
             report($e);
 
-            return back()->with('error', 'Barang gagal diperbarui.');
+            // return back()->with('error', 'Barang gagal diperbarui.');
+            return $this->respond($request, 'Barang gagal diperbarui.', 500);
         }
     }
 
-    public function destroy(string $encryptedId)
+    public function destroy(Request $request, string $encryptedId)
     {
         try {
-            $item = Item::findOrFail(Crypt::decrypt($encryptedId));
+            $item = Item::findOrFail(Crypt::decrypt($encryptedId))->delete();
 
-            $item->delete();
             return redirect()->route('items')->with('success', 'Barang berhasil dihapus.');
         } catch (DecryptException | ModelNotFoundException $e) {
             return back()->with('error', 'Barang tidak ditemukan & gagal dihapus.');
         } catch (QueryException $e) {
             report($e);
 
-            return back()->with('error', 'Barang gagal dihapus.');
+            return $this->respond($request, 'Barang gagal dihapus.', 500);
         }
+    }
+
+    private function respond(Request $request, string $message, int $status = 200)
+    {
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => $message
+            ], $status);
+        }
+
+        return $status < 400
+            ? redirect()->route('items')->with('success', $message)
+            : back()->withInput()->with('error', $message);
     }
 }
