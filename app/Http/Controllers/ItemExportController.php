@@ -42,7 +42,7 @@ class ItemExportController extends Controller
             ->get(['code', 'product_name', 'product_category', 'quantity']);
 
         if ($items->count() > self::PDF_MAX_ROWS) {
-            return back()->with('error', 'Data terlalu banyak untuk PDF (maks. '
+            return back()->with('error', 'Data overload (maks. '
                 . self::PDF_MAX_ROWS . ' baris). Persempit pencarian atau gunakan export Excel.');
         }
 
