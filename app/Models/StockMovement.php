@@ -16,6 +16,7 @@ class StockMovement extends Model
         'item_id',
         'type',
         'quantity',
+        'created_by',
     ];
 
     public function item(): BelongsTo

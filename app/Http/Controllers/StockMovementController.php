@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use RuntimeException;
 
 class StockMovementController extends Controller
@@ -48,6 +49,7 @@ class StockMovementController extends Controller
     {
         try {
             $data = $request->stockMovementData();
+            $data['created_by'] = Auth::id();
 
             DB::transaction(function () use ($data) {
                 $item = Item::whereKey($data['item_id'])->lockForUpdate()->firstOrFail();
@@ -63,6 +65,8 @@ class StockMovementController extends Controller
             return redirect()->route('items')->with('success', 'Transaksi stok berhasil dicatat.');
         } catch (ModelNotFoundException $e) {
             return back()->with('error', 'Barang tidak ditemukan.');
+        } catch (RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
         } catch (QueryException $e) {
             report($e);
 

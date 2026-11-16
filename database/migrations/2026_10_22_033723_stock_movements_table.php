@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignUuid('item_id')->constrained('items')->restrictOnDelete();
             $table->string('type', 20);
             $table->unsignedInteger('quantity');
+            $table->unsignedBigInteger('created_by')->nullable()->index();
             $table->softDeletes();
             $table->timestamps();
         });

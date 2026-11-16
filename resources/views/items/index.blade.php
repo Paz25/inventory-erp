@@ -56,6 +56,7 @@
                         Search
                     </button>
                 </form>
+                @role('admin')
                 <button
                     type="button"
                     class="btn btn-success"
@@ -65,6 +66,7 @@
                     onclick="openCreateModal()">
                     Tambah Barang
                 </button>
+                @endrole
             </div>
 
             <div id="itemTable" class="mt-3">

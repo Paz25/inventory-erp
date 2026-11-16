@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
 
         $roles = [
             ['code' => 'admin', 'name' => 'Administrator'],
-            ['code' => 'stf_gudang', 'name' => 'Staff Gudang'],
+            ['code' => 'staff_gudang', 'name' => 'Staff Gudang'],
         ];
 
         $users = [

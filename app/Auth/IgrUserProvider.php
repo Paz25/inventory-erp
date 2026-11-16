@@ -14,9 +14,17 @@ class IgrUserProvider extends DatabaseUserProvider
         }
 
         $attributes = (array) $user;
-        $attributes['role'] = $this->connection->table('roles')
+
+        if (! is_null($attributes['deleted_at'])) {
+            return null;
+        }
+
+        $role = $this->connection->table('roles')
             ->where('id', $attributes['role_id'])
-            ->value('code');
+            ->first(['code', 'name']);
+
+        $attributes['role'] = $role?->code;
+        $attributes['role_name'] = $role?->name;
 
         return new GenericUser($attributes);
     }

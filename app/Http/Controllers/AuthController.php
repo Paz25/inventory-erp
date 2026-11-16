@@ -17,7 +17,8 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         $credentials = [
-            ...$request->only('username', 'password'),
+            ...$request->validated(),
+            'deleted_at' => null,
         ];
 
         if (!Auth::attempt($credentials)) {
@@ -28,7 +29,7 @@ class AuthController extends Controller
 
         DB::connection('users_igr')->table('users')->where('id', Auth::id())->update(['last_login_at' => now()]);
 
-        return redirect()->intended(route('items.index'));
+        return redirect()->intended(route('items'));
     }
 
     public function logout(Request $request)

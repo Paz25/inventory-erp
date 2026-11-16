@@ -32,7 +32,7 @@
                 </div>
                 @endif
 
-                <form action="" method="" id="loginForm" novalidate>
+                <form action="{{ route('login.attempt') }}" method="POST" id="loginForm" novalidate>
                     @csrf
 
                     <div class="mb-3">

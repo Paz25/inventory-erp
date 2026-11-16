@@ -8,7 +8,10 @@
                 <th>kategori</th>
                 <th>Stok</th>
                 <th>Status</th>
+
+                @role('admin')
                 <th>Aksi</th>
+                @endrole
             </tr>
         </thead>
 
@@ -27,6 +30,7 @@
                     <span class="badge bg-danger">Habis</span>
                     @endif
                 </td>
+                @role('admin')
                 <td>
                     <div class="w-100 d-flex flex-wrap gap-1">
                         <button
@@ -46,6 +50,7 @@
                         </button>
                     </div>
                 </td>
+                @endrole
             </tr>
             @empty
             <tr>

@@ -89,7 +89,7 @@
                             <td>
                                 {{ $movement->item?->product_name ?? '-' }}
                                 @if ($movement->item?->trashed())
-                                <span class="badge bg-secondary">Dihapus</span>
+                                <span class="badge bg-secondary">Inactive</span>
                                 @endif
                             </td>
                             <td><span class="badge bg-{{ $badgeClass }}">{{ $badgeLabel }}</span></td>
