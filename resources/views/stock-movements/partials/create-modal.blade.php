@@ -45,7 +45,9 @@ $selectedItemId = null;
                             <select id="stockItem" name="item_id" class="form-select" required>
                                 <option value="">Pilih barang...</option>
                                 @foreach ($items as $item)
-                                <option value="{{ Crypt::encrypt($item->id) }}" @selected($selectedItemId===$item->id)>
+                                <option value="{{ Crypt::encrypt($item->id) }}"
+                                    data-label="{{ $item->code }} | {{ $item->product_name }}"
+                                    @selected($selectedItemId===$item->id)>
                                     {{ $item->code }} | {{ $item->product_name }} | Stok: {{ $item->quantity }}
                                 </option>
                                 @endforeach

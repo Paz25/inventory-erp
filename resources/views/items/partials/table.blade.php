@@ -5,7 +5,7 @@
                 <th>No.</th>
                 <th>Kode Barang</th>
                 <th>Nama Barang</th>
-                <th>kategori</th>
+                <th>Kategori</th>
                 <th>Stok</th>
                 <th>Status</th>
 

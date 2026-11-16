@@ -19,6 +19,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/items', [ItemController::class, 'index'])->name('items');
     Route::get('/stock-movements', [StockMovementController::class, 'index'])->name('stock-movements');
+    Route::get('/stock-movements/data', [StockMovementController::class, 'data'])->name('stock-movements.data');
 
     Route::middleware('role:admin,staff_gudang')->group(function () {
         Route::post('/stock-movements', [StockMovementController::class, 'store'])->name('stock-movements.store');

@@ -60,9 +60,11 @@ class SupplierController extends Controller
         $orderColumn = $sortable[$request->integer('order.0.column')] ?? null;
         $orderDir = $request->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
 
-        $orderColumn
-            ? $query->orderBy($orderColumn, $orderDir)
-            : $query->latest();
+        if ($orderColumn) {
+            $query->orderBy($orderColumn, $orderDir);
+        } else {
+            $query->latest();
+        }
 
         $suppliers = $query->skip($start)->take($length)->get();
 
