@@ -6,6 +6,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ItemExportController;
+use App\Http\Controllers\SupplierExportController;
 
 Route::redirect('/', '/dashboard');
 Route::view('/dashboard', 'dashboard.index')->name('dashboard');
@@ -43,5 +44,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('items/export')->name('items.export.')->group(function () {
         Route::get('excel', [ItemExportController::class, 'excel'])->name('excel');
         Route::get('pdf', [ItemExportController::class, 'pdf'])->name('pdf');
+    });
+
+    Route::prefix('suppliers/export')->name('suppliers.export.')->group(function () {
+        Route::get('excel', [SupplierExportController::class, 'excel'])->name('excel');
+        Route::get('pdf', [SupplierExportController::class, 'pdf'])->name('pdf');
     });
 });

@@ -7,6 +7,31 @@
 </div>
 <div class="d-flex flex-column justify-content-between align-items-end gap-2">
     <div class="d-flex justify-content-end align-items-center gap-2">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Export
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a class="dropdown-item js-supplier-export"
+                        href="{{ route('suppliers.export.excel') }}"
+                        data-base-url="{{ route('suppliers.export.excel') }}">
+                        Excel (.xlsx)
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item js-supplier-export"
+                        href="{{ route('suppliers.export.pdf') }}"
+                        data-base-url="{{ route('suppliers.export.pdf') }}">
+                        PDF
+                    </a>
+                </li>
+            </ul>
+        </div>
+
         <button
             type="button"
             class="btn btn-success text-nowrap"
@@ -164,7 +189,7 @@
 
             if (!res.ok) {
                 bootstrap.Modal.getInstance(supplierModal)?.hide();
-                alert(data.message ?? 'Gagal memuat data barang.');
+                alert(data.message ?? 'Gagal memuat data supplier.');
                 return;
             }
 
@@ -182,7 +207,6 @@
             bootstrap.Modal.getOrCreateInstance(supplierModal).show();
         } catch (e) {
             console.error(e);
-            // alert('Gagal memuat data barang.');
         }
     }
 

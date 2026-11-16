@@ -47,7 +47,9 @@ class ItemExportController extends Controller
         }
 
         $pdf = Pdf::loadView('items.exports.pdf', [
+            'title' => 'Daftar Barang',
             'items' => $items,
+            'total' => $items->count(),
             'search' => $search,
             'printedAt' => now(),
         ])->setPaper('a4', 'portrait');

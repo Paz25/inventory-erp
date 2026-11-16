@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Blade;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Register any application servicesw.
      */
     public function register(): void
     {

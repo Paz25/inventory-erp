@@ -15,18 +15,9 @@ use Illuminate\Support\Str;
 
 class SupplierController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $search = $request->input('search');
-
-        $suppliers = DB::table('suppliers')->whereNull('deleted_at')->when($search, function ($query, $search) {
-            $query->where(function ($query) use ($search) {
-                $query->where('supplier_name', 'like', "%{$search}%")
-                    ->orWhere('pic_name', 'like', "%{$search}%");
-            });
-        })->latest()->paginate(10)->withQueryString();
-
-        return view('suppliers.index', compact('suppliers', 'search'));
+        return view('suppliers.index');
     }
 
     public function data(Request $request): JsonResponse
@@ -41,20 +32,13 @@ class SupplierController extends Controller
         $start = max(0, $request->integer('start'));
         $length = min(100, max(1, $request->integer('length', 10)));
         $search = trim((string) $request->input('search.value', ''));
+        $keyword = $search === '' ? null : $search;
 
-        $base = DB::table('suppliers')
-            ->select(['id', 'supplier_name', 'supplier_address', 'pic_name', 'pic_contact_number', 'created_at'])
-            ->whereNull('deleted_at');
+        $base = Supplier::query()
+            ->select(['id', 'supplier_name', 'supplier_address', 'pic_name', 'pic_contact_number', 'created_at']);
 
         $recordsTotal = (clone $base)->count();
-
-        $query = (clone $base)->when($search !== '', function ($query) use ($search) {
-            $query->where(function ($query) use ($search) {
-                $query->where('supplier_name', 'like', "%{$search}%")
-                    ->orWhere('pic_name', 'like', "%{$search}%");
-            });
-        });
-
+        $query = (clone $base)->search($keyword);
         $recordsFiltered = (clone $query)->count();
 
         $orderColumn = $sortable[$request->integer('order.0.column')] ?? null;
