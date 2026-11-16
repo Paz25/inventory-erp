@@ -198,10 +198,10 @@
                 searchable: false
             },
             {
-                data: 'item_code'
+                data: 'code'
             },
             {
-                data: 'item_name',
+                data: 'product_name',
                 render: (data, type, row) => row.item_inactive ?
                     `${data} <span class="badge bg-secondary">Inactive</span>` : data
             },

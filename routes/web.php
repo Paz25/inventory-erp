@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\ItemExportController;
 
 Route::redirect('/', '/dashboard');
 Route::view('/dashboard', 'dashboard.index')->name('dashboard');
@@ -37,5 +38,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
         Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+    });
+
+    Route::prefix('items/export')->name('items.export.')->group(function () {
+        Route::get('excel', [ItemExportController::class, 'excel'])->name('excel');
+        Route::get('pdf', [ItemExportController::class, 'pdf'])->name('pdf');
     });
 });

@@ -20,14 +20,8 @@ class ItemController extends Controller
     {
         $search = trim((string) $request->input('search'));
         $items = Item::query()
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($query) use ($search) {
-                    $query->where('code', 'like', "%{$search}%")
-                        ->orWhere('product_name', 'like', "%{$search}%")
-                        ->orWhere('product_category', 'like', "%{$search}%");
-                });
-            })
-            ->latest()
+            ->search($search)
+            ->orderBy('code')
             ->paginate(10)
             ->withQueryString();
 

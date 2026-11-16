@@ -56,6 +56,32 @@
                         Search
                     </button>
                 </form>
+
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        Export
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item js-export-link"
+                                href="{{ route('items.export.excel', request()->only('search')) }}"
+                                data-base-url="{{ route('items.export.excel') }}">
+                                Excel (.xlsx)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item js-export-link"
+                                href="{{ route('items.export.pdf', request()->only('search')) }}"
+                                data-base-url="{{ route('items.export.pdf') }}">
+                                PDF
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
                 @role('admin')
                 <button
                     type="button"
@@ -93,6 +119,9 @@
         const current = new AbortController();
         tableRequest = current;
 
+        history.replaceState(null, '', url);
+        syncExportLinks();
+
         try {
             const res = await fetch(url, {
                 headers: {
@@ -119,6 +148,16 @@
         const keyword = searchFormInput.value.trim();
         if (keyword) url.searchParams.set('search', keyword);
         return url.toString();
+    }
+
+    function syncExportLinks() {
+        const search = new URLSearchParams(location.search).get('search');
+
+        document.querySelectorAll('.js-export-link').forEach((link) => {
+            const url = new URL(link.dataset.baseUrl);
+            if (search) url.searchParams.set('search', search);
+            link.href = url.toString();
+        });
     }
 
     // debounce

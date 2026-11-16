@@ -64,8 +64,8 @@ class StockMovementController extends Controller
                 'stock_movements.type',
                 'stock_movements.quantity',
                 'stock_movements.created_at',
-                'items.code as item_code',
-                'items.product_name as item_name',
+                'items.code as code',
+                'items.product_name as product_name',
                 'items.deleted_at as item_deleted_at',
             ]);
 
@@ -94,8 +94,8 @@ class StockMovementController extends Controller
         $data = $movements->values()->map(fn(StockMovement $movement, int $i) => [
             'no' => $start + $i + 1,
             'created_at' => $movement->created_at->format('d M Y H:i'),
-            'item_code' => e($movement->item_code ?? '-'),
-            'item_name' => e($movement->item_name ?? '-'),
+            'code' => e($movement->code ?? '-'),
+            'product_name' => e($movement->product_name ?? '-'),
             'item_inactive' => $movement->item_deleted_at !== null,
             'type' => $movement->type,
             'quantity' => $movement->quantity,
