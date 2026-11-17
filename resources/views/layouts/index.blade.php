@@ -11,11 +11,24 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/3.1.5/css/dataTables.dataTables.css" />
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+
+    <style>
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            height: 100dvh;
+            width: 250px;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+    </style>
 </head>
 
 <body>
     <div class="app-layout d-flex">
         @include('partials.sidebar')
+
         <div class="main-content flex-grow-1"">
             <main class=" page-content p-4">
             @yield('content')

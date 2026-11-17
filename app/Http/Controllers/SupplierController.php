@@ -43,7 +43,6 @@ class SupplierController extends Controller
 
         $orderColumn = $sortable[$request->integer('order.0.column')] ?? null;
         $orderDir = $request->input('order.0.dir') === 'asc' ? 'asc' : 'desc';
-
         if ($orderColumn) {
             $query->orderBy($orderColumn, $orderDir);
         } else {

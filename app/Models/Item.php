@@ -30,7 +30,7 @@ class Item extends Model
             $q->where(function (Builder $q) use ($keyword) {
                 $q->where('code', 'like', "%{$keyword}%")
                     ->orWhere('product_name', 'like', "%{$keyword}%")
-                    ->orWhere('category', 'like', "%{$keyword}%");
+                    ->orWhere('product_category', 'like', "%{$keyword}%");
             });
         });
     }

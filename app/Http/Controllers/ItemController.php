@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use App\Http\Requests\ItemRequest;
 use App\Models\Item;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ItemController extends Controller
 {
@@ -39,6 +40,7 @@ class ItemController extends Controller
                 $item->movements()->create([
                     'type' => 'initial',
                     'quantity' => $item->quantity,
+                    'created_by' => Auth::id(),
                 ]);
             });
 

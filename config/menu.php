@@ -25,4 +25,10 @@ return [
         'active' => 'stock-movements*',
         'roles' => null,
     ],
+    [
+        'label' => 'Manajemen User',
+        'route' => 'users',
+        'active' => 'users*',
+        'roles' => ['admin'],
+    ],
 ];

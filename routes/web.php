@@ -7,6 +7,7 @@ use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ItemExportController;
 use App\Http\Controllers\SupplierExportController;
+use App\Http\Controllers\UserController;
 
 Route::redirect('/', '/dashboard');
 Route::view('/dashboard', 'dashboard.index')->name('dashboard');
@@ -39,6 +40,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/suppliers/{supplier}', [SupplierController::class, 'show'])->name('suppliers.show');
         Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
+
+        Route::get('/users', [UserController::class, 'index'])->name('users');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
     });
 
     Route::prefix('items/export')->name('items.export.')->group(function () {
